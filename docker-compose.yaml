@@ -1,0 +1,50 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:14-alpine3.14
+    container_name: postgres
+    ports:
+      - "3002:5432"
+    volumes:
+      - ~/postgres-volume:/var/lib/postgresql/data:z
+    networks:
+      - sportapp_miso
+    environment:
+      POSTGRES_PASSWORD: sportapp$123
+      POSTGRES_USER: sportapp
+      POSTGRES_DB: ms_user
+
+  usuario_ms:
+    image: usuario:1.0
+    container_name: usuario_ms_dev
+    build:
+      context: .
+      target: development
+      dockerfile: ./Dockerfile
+    command: npm run start:dev
+    restart: unless-stopped
+    ports:
+      - 3010:3010
+      - 9229:9229
+    networks:
+      - sportapp_miso    
+    volumes:
+      - .:/usr/src/app:z
+      - /usr/src/app/node_modules
+    environment:
+      NODE_ENV: development
+      DATABASE_PASSWORD: sportapp$123
+      DATABASE_USER: sportapp
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: ms_user
+      AUTH_MS_HOST: localhost
+      AUTH_MS_PORT: 4000
+
+networks:
+  sportapp_miso:
+
+
+volumes:
+  db-data:

@@ -1,0 +1,155 @@
+# Version del API de Kubernetes
+apiVersion: apps/v1
+# Tipo de elemento
+kind: Deployment
+# Metadatos del elemento
+metadata:
+  namespace: development
+  # Nombre
+  name: ms-usuario
+  # Etiqueta del Deployment
+  labels:
+    app: ms-usuario
+# Especificaciones del elemento
+spec:
+  replicas: 1
+  # K8s agrupa los elementos del Deployment y los interconecta entre si utilizando etiquetas
+  # Aqui definimos como seleccionar los elementos juntos
+  selector:
+    # En este caso va a seleccionar aquellos que coincidan con el nombre del deploy
+    matchLabels:
+      app: ms-usuario
+  # En este elemento definimos la politica de actualizacion del despliegue
+  # No esta al alcance de este laboratorio, pero invitamos al lector a consultar mas sobre
+  # tecnicas de actualización de despliegues como Rolling Update y Blue/Green
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  # En esta sección definimos el contenido del pod y declaramos los contenedores
+  template:
+    metadata:
+      labels:
+        # Esta es la etiqueta que se le asigna al pod, debe ser igual al selector (linea 24)
+        app: ms-usuario
+    spec:
+      # Declaracion de contenedores
+      # name: Nombre del contenedor
+      # image: Nombre de la imagen, por defecto buscara en Docker Hub o en el repositorio privado
+      #        configurado en K8s
+      containers:
+        - name: contenendor-ms-usuario
+          image: southamerica-east1-docker.pkg.dev/sportapp-miso-grupo6/sportapp-miso-grupo6-repository/usuario:1.0
+          readinessProbe:
+            httpGet:
+              path: /usuario/health
+              port: 3010    
+          resources:
+            requests:
+              cpu: "100m"
+            limits:
+              cpu: "350m"  
+          ports:
+            - containerPort: 3010
+            - containerPort: 4010
+          # Variables de entorno
+          # Observe que estamos empleando el valor presente en el secreto, en el secreto debe estar configurada la URL de conexión a la base de datos
+          env:
+            - name: NODE_ENV
+              value: "development"
+            - name: AUTH_MS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: usuario-config-map
+                  key: AUTH_MS_HOST
+            - name: AUTH_MS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: usuario-config-map
+                  key: AUTH_MS_PORT
+            - name: DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: usuario-secrets
+                  key: POSTGRES_USER
+                  optional: false
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: usuario-secrets
+                  key: POSTGRES_PASSWORD
+                  optional: false
+            - name: DATABASE_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: usuario-secrets
+                  key: POSTGRES_HOST
+                  optional: false
+            - name: DATABASE_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: usuario-secrets
+                  key: POSTGRES_PORT
+                  optional: false
+            - name: DATABASE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: usuario-secrets
+                  key: POSTGRES_DB
+                  optional: false
+          # Realizar pull siempre a la imagen
+          imagePullPolicy: Always
+      serviceAccountName: ksa-dev-sportapp
+
+# Vamos a especificar el balanceador de carga en este mismo archivo
+# para ello vamos a crear otro documento separado, esto se hace con el operador "---"
+---
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: sportapp-usuario-backendconfig
+spec:
+  timeoutSec: 65
+  healthCheck:
+    checkIntervalSec: 10
+    timeoutSec: 3
+    requestPath: /usuario/health
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name:  sportapp-ms-usuario-service
+  namespace: development
+  annotations:
+    cloud.google.com/neg: '{"ingress": true}'
+spec:
+  type: ClusterIP
+  selector:
+    app: ms-usuario
+  # Declaracion y redireccion del trafico por los puertos
+  # En este caso, estamos ocupando el puerto 80 para la conexión HTTP
+  # y lo estamos redirigiendo al 3000 de la red virtual del pod
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3010
+---      
+kind: Service
+apiVersion: v1
+metadata:
+  name:  sportapp-ms-usuario-tcp-service
+  namespace: development
+  annotations:
+    cloud.google.com/neg: '{"ingress": true}'
+spec:
+  type: ClusterIP
+  selector:
+    app: ms-usuario
+  # Declaracion y redireccion del trafico por los puertos
+  # En este caso, estamos ocupando el puerto 80 para la conexión HTTP
+  # y lo estamos redirigiendo al 3000 de la red virtual del pod
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 4010               
