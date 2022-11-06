@@ -40,7 +40,7 @@ spec:
       #        configurado en K8s
       containers:
         - name: contenendor-ms-usuario
-          image: southamerica-east1-docker.pkg.dev/sportapp-miso-grupo6/sportapp-miso-grupo6-repository/usuario:1.0
+          image: IMAGE
           readinessProbe:
             httpGet:
               path: /usuario/health

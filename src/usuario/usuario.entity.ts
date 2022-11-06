@@ -6,7 +6,6 @@ import {
   CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
-  Unique,
 } from 'typeorm';
 import { UserInterface } from './user.interface';
 
@@ -16,16 +15,16 @@ export class UsuarioEntity implements UserInterface {
   id: number;
 
   @Column()
-  username: string;
+  nombres: string;
+
+  @Column()
+  apellidos: string;
 
   @Column()
   @Min(8)
   password: string;
 
-  @Column()
-  name: string;
-
-  @Column()
+  @Column({ unique: true })
   @IsEmail()
   email: string;
 
