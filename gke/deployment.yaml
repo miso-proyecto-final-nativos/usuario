@@ -68,6 +68,16 @@ spec:
                 configMapKeyRef:
                   name: usuario-config-map
                   key: AUTH_MS_PORT
+            - name: MS_CATALOGO_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: usuario-config-map
+                  key: MS_CATALOGO_HOST
+            - name: MS_CATALOGO_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: usuario-config-map
+                  key: MS_CATALOGO_PORT
             - name: DATABASE_USER
               valueFrom:
                 secretKeyRef:
