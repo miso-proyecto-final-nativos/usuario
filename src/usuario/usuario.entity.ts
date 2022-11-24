@@ -1,23 +1,25 @@
-import { hash } from 'bcrypt';
-import { IsEmail, Min } from 'class-validator';
+import { hash } from "bcrypt";
+import { IsEmail, Min } from "class-validator";
 import {
   BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
-} from 'typeorm';
-import { UserInterface } from './user.interface';
+  TableInheritance,
+} from "typeorm";
+import { UserInterface } from "./user.interface";
 
 @Entity()
+@TableInheritance({ column: { type: "varchar", name: "type" } })
 export class UsuarioEntity implements UserInterface {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ default: "" })
   nombres: string;
 
-  @Column()
+  @Column({ default: "" })
   apellidos: string;
 
   @Column()
@@ -29,10 +31,13 @@ export class UsuarioEntity implements UserInterface {
   email: string;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt?: Date;
+
+  @Column({ array: true })
+  roles?: string;
 
   @BeforeInsert()
-  async hashPassword() {
+  async hashPassword?() {
     this.password = await hash(this.password, 10);
   }
 }

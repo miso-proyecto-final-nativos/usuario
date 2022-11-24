@@ -1,17 +1,17 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { Injectable, Logger } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
 import {
   BusinessError,
   BusinessLogicException,
-} from 'src/shared/errors/business-errors';
-import { FindOneOptions, InsertResult, Repository } from 'typeorm';
-import { UsuarioEntity } from './usuario.entity';
+} from "../shared/errors/business-errors";
+import { FindOneOptions, InsertResult, Repository } from "typeorm";
+import { UsuarioEntity } from "./usuario.entity";
 
 @Injectable()
 export class UsuarioService {
   constructor(
     @InjectRepository(UsuarioEntity)
-    private readonly usuarioEntityRepository: Repository<UsuarioEntity>,
+    private readonly usuarioEntityRepository: Repository<UsuarioEntity>
   ) {}
 
   async findOne(query: FindOneOptions<UsuarioEntity>): Promise<UsuarioEntity> {
@@ -28,17 +28,17 @@ export class UsuarioService {
 
       const res = await this.usuarioEntityRepository.insert(usuarioEntity);
 
-      Logger.log('createUsuarioEntity - Created UsuarioEntity');
+      Logger.log("createUsuarioEntity - Created UsuarioEntity");
 
       return res;
     } catch (e) {
       Logger.log(e);
       if (
-        e.message.includes('duplicate key value violates unique constraint')
+        e.message.includes("duplicate key value violates unique constraint")
       ) {
         throw new BusinessLogicException(
-          'El correo electrónico ingresado ya se encuentra registrado',
-          BusinessError.PRECONDITION_FAILED,
+          "El correo electrónico ingresado ya se encuentra registrado",
+          BusinessError.PRECONDITION_FAILED
         );
       } else {
         throw e;
