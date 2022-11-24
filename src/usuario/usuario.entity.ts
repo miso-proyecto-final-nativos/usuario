@@ -9,7 +9,6 @@ import {
   TableInheritance,
 } from "typeorm";
 import { UserInterface } from "./user.interface";
-import { Exclude } from "class-transformer";
 
 @Entity()
 @TableInheritance({ column: { type: "varchar", name: "type" } })
