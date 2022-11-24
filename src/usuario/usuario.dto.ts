@@ -1,23 +1,23 @@
 import {
   IsEmail,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsString,
   Min,
 } from "class-validator";
 
-export class SocioNegocioDto {
+export class UsuarioDto {
   @IsString()
   @IsNotEmpty()
-  readonly razonSocial: string;
+  readonly nombres: string;
+
+  @IsString()
+  @IsNotEmpty()
+  readonly apellidos: string;
 
   @IsEmail()
   @IsNotEmpty()
   readonly email: string;
-
-  @IsNumber()
-  readonly categoriaSocio: number;
 
   @IsNotEmpty()
   @Min(8)

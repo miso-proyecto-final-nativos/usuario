@@ -5,6 +5,7 @@ import { SociosNegocioService } from "./socios-negocio.service";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { faker } from "@faker-js/faker";
 import { SocioNegocioEntity } from "./socio-negocio.entity";
+import { Role } from "../usuario/roles/role.enum";
 
 describe("SociosNegocioService", () => {
   let service: SociosNegocioService;
@@ -27,6 +28,7 @@ describe("SociosNegocioService", () => {
   const seedDatabase = async () => {
     repository.clear();
     sociosNegocioList = [];
+    const rol: Role[] = [Role.SocioNegocio];
     for (let i = 0; i < 5; i++) {
       const socioNegocio: SocioNegocioEntity = await repository.save({
         razonSocial: faker.company.name(),
@@ -35,6 +37,7 @@ describe("SociosNegocioService", () => {
         password: faker.random.alphaNumeric(8),
         nombres: "",
         apellidos: "",
+        roles: rol.toString(),
       });
       sociosNegocioList.push(socioNegocio);
     }
@@ -63,7 +66,7 @@ describe("SociosNegocioService", () => {
     expect(socioNegocio.categoriaSocio).toEqual(
       socioNegocioAlmacenado.categoriaSocio
     );
-    expect(socioNegocio.password).toEqual(socioNegocioAlmacenado.password);
+    expect(socioNegocio.roles).toEqual(socioNegocioAlmacenado.roles);
   });
 
   it("findOne debe lanzar una excepción para un id de socio de negocio no válido", async () => {
@@ -74,6 +77,7 @@ describe("SociosNegocioService", () => {
   });
 
   it("create debe crear un nuevo socio de negocio", async () => {
+    const rol: Role[] = [Role.Deportista];
     const socioNegocio: SocioNegocioEntity = {
       id: -1,
       razonSocial: faker.company.name(),
@@ -82,6 +86,7 @@ describe("SociosNegocioService", () => {
       password: faker.random.alphaNumeric(8),
       nombres: "",
       apellidos: "",
+      roles: rol.toString(),
     };
 
     const socioNegocioNuevo: SocioNegocioEntity = await service.create(
@@ -102,7 +107,7 @@ describe("SociosNegocioService", () => {
     expect(socioNegocioAlmacenado.categoriaSocio).toEqual(
       socioNegocioNuevo.categoriaSocio
     );
-    expect(socioNegocioAlmacenado.password).toEqual(socioNegocioNuevo.password);
+    expect(socioNegocioAlmacenado.roles).toEqual(socioNegocioNuevo.roles);
   });
 
   it("update debe modificar un socio de negocio", async () => {

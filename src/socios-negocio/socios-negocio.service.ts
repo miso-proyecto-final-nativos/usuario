@@ -18,8 +18,10 @@ export class SociosNegocioService {
     return await this.socioNegocioRepository.find();
   }
 
-  async findOne(id: number): Promise<SocioNegocioEntity> {
-    return await this.validarSocioNegocio(id);
+  async findOne(id: number): Promise<any> {
+    const socioNegocio = await this.validarSocioNegocio(id);
+    const { nombres, apellidos, password, ...result } = socioNegocio;
+    return result;
   }
 
   async findOneWithQuery(
@@ -39,9 +41,13 @@ export class SociosNegocioService {
     return socioNegocio;
   }
 
-  async create(socioNegocio: SocioNegocioEntity): Promise<SocioNegocioEntity> {
+  async create(socioNegocio: SocioNegocioEntity): Promise<any> {
     try {
-      return await this.socioNegocioRepository.save(socioNegocio);
+      const socioNegocioAlmacenado: SocioNegocioEntity =
+        await this.socioNegocioRepository.save(socioNegocio);
+      const { nombres, apellidos, password, ...result } =
+        socioNegocioAlmacenado;
+      return result;
     } catch (error) {
       Logger.log(error);
       if (

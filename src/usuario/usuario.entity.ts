@@ -25,7 +25,6 @@ export class UsuarioEntity implements UserInterface {
 
   @Column()
   @Min(8)
-  @Exclude()
   password: string;
 
   @Column({ unique: true })
@@ -34,6 +33,9 @@ export class UsuarioEntity implements UserInterface {
 
   @CreateDateColumn()
   createdAt?: Date;
+
+  @Column({ array: true })
+  roles?: string;
 
   @BeforeInsert()
   async hashPassword?() {

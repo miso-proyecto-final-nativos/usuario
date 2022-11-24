@@ -16,6 +16,9 @@ import {
   HealthCheckService,
   TypeOrmHealthIndicator,
 } from "@nestjs/terminus";
+import { UsuarioDto } from "./usuario.dto";
+import { Role } from "./roles/role.enum";
+import { plainToInstance } from "class-transformer";
 
 @UseInterceptors(BusinessErrorsInterceptor)
 @Controller("usuario")
@@ -53,7 +56,9 @@ export class UsuarioController {
   }
 
   @Post()
-  async create(@Body() usuario: UsuarioEntity) {
+  async create(@Body() usuarioDto: UsuarioDto) {
+    usuarioDto.roles = [Role.Deportista];
+    const usuario: UsuarioEntity = plainToInstance(UsuarioEntity, usuarioDto);
     return await this.userService.createUsuarioEntity(usuario);
   }
 }

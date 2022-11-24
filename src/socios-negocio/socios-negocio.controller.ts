@@ -32,6 +32,7 @@ import {
   BusinessLogicException,
 } from "src/shared/errors/business-errors";
 import { BusinessErrorsInterceptor } from "src/shared/interceptors/business-errors.interceptor";
+import { Role } from "src/usuario/roles/role.enum";
 import { AuthGuard } from "../usuario/guards/auth.guard";
 import { SocioNegocioDto } from "./socio-negocio.dto";
 import { SocioNegocioEntity } from "./socio-negocio.entity";
@@ -68,6 +69,7 @@ export class SociosNegocioController {
   @Post()
   async create(@Body() socioNegocioDto: SocioNegocioDto) {
     await this.validarCategoriaSocio(socioNegocioDto.categoriaSocio);
+    socioNegocioDto.roles = [Role.SocioNegocio];
     const socioNegocio: SocioNegocioEntity = plainToInstance(
       SocioNegocioEntity,
       socioNegocioDto
